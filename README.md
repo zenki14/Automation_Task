@@ -157,7 +157,7 @@ npm run test:ui
 ## Known limitations / future improvements
 
 - **Chromium only** by default — add Firefox/WebKit projects for cross-browser coverage.
-- **Public demo dependency** — Sauce Demo availability, latency, or content changes can flake CI; a local mock or contract fixtures would harden runs.
+- **Public demo dependency** — Sauce Demo availability, latency, or content changes can flake CI.
 - **Cart isolation** — `storageState` restores auth cookies, not cart contents; each test still mutates the live cart via UI. A reset helper or API seed (if available) would make multi-worker cart scenarios even safer.
 - **Additional users** — `problem_user` and `performance_glitch_user` are defined in shared data but not covered by dedicated negative/performance specs yet.
 - **CI pipeline** — no GitHub Actions workflow is checked in; a sample workflow with artifact upload for the HTML report would be a natural next step.
