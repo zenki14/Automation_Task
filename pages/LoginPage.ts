@@ -1,8 +1,7 @@
 import { type Locator, type Page, expect } from '@playwright/test';
 
-/**
- * Login page for https://www.saucedemo.com/
- */
+//Login page for https://www.saucedemo.com/
+ 
 export class LoginPage {
   readonly page: Page;
   readonly usernameInput: Locator;

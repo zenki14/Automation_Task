@@ -1,8 +1,7 @@
 import { type Locator, type Page, expect } from '@playwright/test';
 
-/**
- * Shopping cart page.
- */
+ //Shopping cart page
+ 
 export class CartPage {
   readonly page: Page;
   readonly title: Locator;

@@ -6,9 +6,8 @@ export type CheckoutInfo = {
   postalCode: string;
 };
 
-/**
- * Checkout flow: information → overview → complete.
- */
+//Checkoput page
+
 export class CheckoutPage {
   readonly page: Page;
   readonly infoTitle: Locator;

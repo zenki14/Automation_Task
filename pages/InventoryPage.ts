@@ -6,9 +6,8 @@ export type SortOption =
   | 'Price (low to high)'
   | 'Price (high to low)';
 
-/**
- * Inventory (Products) page.
- */
+//Inventory page
+
 export class InventoryPage {
   readonly page: Page;
   readonly title: Locator;
