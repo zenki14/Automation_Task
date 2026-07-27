@@ -19,6 +19,7 @@ export class InventoryPage {
   readonly inventoryItems: Locator;
   readonly productNames: Locator;
   readonly productPrices: Locator;
+  readonly productImages: Locator;
   readonly menuButton: Locator;
   readonly logoutLink: Locator;
 
@@ -32,6 +33,7 @@ export class InventoryPage {
     this.inventoryItems = page.locator('.inventory_item');
     this.productNames = page.locator('.inventory_item_name');
     this.productPrices = page.locator('.inventory_item_price');
+    this.productImages = page.locator('.inventory_item_img img');
     this.menuButton = page.locator('#react-burger-menu-btn');
     this.logoutLink = page.getByRole('link', { name: 'Logout' });
   }
@@ -73,6 +75,24 @@ export class InventoryPage {
   async getProductPrices(): Promise<number[]> {
     const texts = await this.productPrices.allTextContents();
     return texts.map((text) => Number.parseFloat(text.replace('$', '')));
+  }
+
+  async getProductImageSources(): Promise<string[]> {
+    return this.productImages.evaluateAll((images) =>
+      images.map((image) => image.getAttribute('src') ?? ''),
+    );
+  }
+
+  addToCartButton(productName: string): Locator {
+    return this.itemByName(productName).getByRole('button', {
+      name: 'Add to cart',
+    });
+  }
+
+  removeButton(productName: string): Locator {
+    return this.itemByName(productName).getByRole('button', {
+      name: 'Remove',
+    });
   }
 
   async openCart(): Promise<void> {

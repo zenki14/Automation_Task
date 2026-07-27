@@ -46,6 +46,7 @@ Run a single file:
 npx playwright test tests/auth.spec.ts
 npx playwright test tests/inventory.spec.ts
 npx playwright test tests/checkout.spec.ts
+npx playwright test tests/problem-user.spec.ts
 ```
 
 ## Project structure
@@ -63,13 +64,14 @@ sauce-demo-playwright/
 │   ├── CartPage.ts
 │   └── CheckoutPage.ts
 ├── fixtures/
-│   ├── auth.fixture.ts      # Page objects + authenticatedInventory fixture
+│   ├── auth.fixture.ts      # Page objects + authenticated / problem_user fixtures
 │   └── test-data.ts         # Shared credentials, products, checkout data
 └── tests/
     ├── auth.setup.ts        # Writes storageState for standard_user
     ├── auth.spec.ts
     ├── inventory.spec.ts
-    └── checkout.spec.ts
+    ├── checkout.spec.ts
+    └── problem-user.spec.ts # Negative tests for known problem_user defects
 ```
 
 ## What each test file validates
@@ -100,6 +102,18 @@ sauce-demo-playwright/
 | 2 | Checkout form validation: continue with empty required fields shows the expected error |
 | 3 | User can remove an item from the cart page before checking out |
 
+### `problem-user.spec.ts`
+
+Negative / defect-characterization coverage for `problem_user` (asserts known broken behaviors):
+
+| # | Scenario |
+| --- | --- |
+| 1 | Every product image points at a shared 404 asset |
+| 2 | Sorting Name (Z→A) does not reorder the catalog |
+| 3 | Adding Fleece Jacket does not update the cart badge |
+| 4 | Remove fails after adding Backpack (badge stays at 1) |
+| 5 | Checkout cannot continue because last name never persists |
+
 ## Shared credentials
 
 Hardcoded in `fixtures/test-data.ts` (public demo accounts):
@@ -123,7 +137,8 @@ Page classes own locators and user actions (`login`, `addToCart`, `sortBy`, `fil
 
 - **Page object fixtures** (`loginPage`, `inventoryPage`, …) keep construction consistent and typed.
 - **`authenticatedInventory`** navigates to a known inventory URL for authenticated specs.
-- **`auth.setup.ts` + `storageState`** logs in once per worker setup and reuses the session for inventory/checkout, so those tests do not repeat the login UI. Auth specs run in a separate project **without** storageState so they can exercise the login page from a clean session.
+- **`problemUserInventory`** logs in as `problem_user` for negative / defect specs (no `standard_user` storageState).
+- **`auth.setup.ts` + `storageState`** logs in once per worker setup and reuses the session for inventory/checkout, so those tests do not repeat the login UI. Auth and problem-user specs run in a separate project **without** storageState so they exercise a clean session.
 
 ### Locator strategy
 
@@ -144,7 +159,7 @@ Assertions are web-first (`toBeVisible`, `toHaveText`, `toHaveCount`, `toHaveURL
 - `screenshot: 'only-on-failure'`
 - `video: 'retain-on-failure'`
 - 30s test timeout / 10s expect timeout
-- Chromium projects (unauthenticated for auth specs; authenticated for the rest)
+- Chromium projects (unauthenticated for auth + problem-user specs; authenticated for inventory/checkout)
 
 ## Debugging failures
 
@@ -159,7 +174,7 @@ npm run test:ui
 - **Chromium only** by default — add Firefox/WebKit projects for cross-browser coverage.
 - **Public demo dependency** — Sauce Demo availability, latency, or content changes can flake CI.
 - **Cart isolation** — `storageState` restores auth cookies, not cart contents; each test still mutates the live cart via UI. A reset helper or API seed (if available) would make multi-worker cart scenarios even safer.
-- **Additional users** — `problem_user` and `performance_glitch_user` are defined in shared data but not covered by dedicated negative/performance specs yet.
+- **Additional users** — `performance_glitch_user` is defined in shared data but not covered by dedicated performance specs yet. `problem_user` defects are covered in `problem-user.spec.ts`.
 - **CI pipeline** — no GitHub Actions workflow is checked in; a sample workflow with artifact upload for the HTML report would be a natural next step.
 - **Visual / accessibility checks** — not included; Playwright screenshots or axe-core could extend the suite for portfolio depth.
 

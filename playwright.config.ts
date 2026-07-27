@@ -31,11 +31,11 @@ export default defineConfig({
       name: 'setup',
       testMatch: /.*\.setup\.ts/,
     },
-    // Auth specs must start logged out (no storageState).
+    // Auth + problem-user specs must start logged out (no storageState).
     {
       name: 'chromium-unauthenticated',
       use: { ...devices['Desktop Chrome'] },
-      testMatch: /auth\.spec\.ts/,
+      testMatch: /(auth|problem-user)\.spec\.ts/,
     },
     // Inventory + checkout reuse a stored standard_user session.
     {
@@ -46,7 +46,7 @@ export default defineConfig({
       },
       dependencies: ['setup'],
       testMatch: /.*\.spec\.ts/,
-      testIgnore: /auth\.spec\.ts/,
+      testIgnore: /(auth|problem-user)\.spec\.ts/,
     },
   ],
 });

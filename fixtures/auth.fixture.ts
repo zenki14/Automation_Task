@@ -19,12 +19,17 @@ type AuthFixtures = PageFixtures & {
    * also navigates to /inventory.html so specs start on a known page.
    */
   authenticatedInventory: InventoryPage;
+  /**
+   * Fresh login as problem_user (known buggy account).
+   * Intentionally does not use standard_user storageState.
+   */
+  problemUserInventory: InventoryPage;
 };
 
 /**
- * Shared fixtures: page objects + authenticated inventory entry point.
+ * Shared fixtures: page objects + authenticated inventory entry points.
  * Inventory/checkout projects load storageState from playwright/.auth/.
- * Auth specs run without storageState and use loginPage directly.
+ * Auth + problem-user specs run without storageState.
  */
 export const test = base.extend<AuthFixtures>({
   loginPage: async ({ page }, use) => {
@@ -48,6 +53,17 @@ export const test = base.extend<AuthFixtures>({
     // Always land on inventory so tests do not depend on the prior URL.
     await inventoryPage.goto();
     await inventoryPage.expectLoaded();
+    await use(inventoryPage);
+  },
+
+  problemUserInventory: async ({ page }, use) => {
+    const loginPage = new LoginPage(page);
+    const inventoryPage = new InventoryPage(page);
+
+    await loginPage.goto();
+    await loginPage.login(USERS.problem.username, USERS.problem.password);
+    await inventoryPage.expectLoaded();
+
     await use(inventoryPage);
   },
 });
