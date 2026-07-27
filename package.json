@@ -8,6 +8,10 @@
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
     "test:debug": "playwright test --debug",
+    "test:auth": "playwright test tests/auth.spec.ts",
+    "test:inventory": "playwright test tests/inventory.spec.ts",
+    "test:checkout": "playwright test tests/checkout.spec.ts",
+    "test:problem-user": "playwright test tests/problem-user.spec.ts",
     "report": "playwright show-report"
   },
   "keywords": [

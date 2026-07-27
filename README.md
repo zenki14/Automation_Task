@@ -1,6 +1,6 @@
 # Sauce Demo Playwright Suite
 
-End-to-end automation for [Sauce Demo](https://www.saucedemo.com/) using **Playwright**, **TypeScript**, and the **Page Object Model**. The suite is structured as a portfolio-ready project: isolated specs, reusable fixtures, resilient locators, and clear documentation for onboarding.
+End-to-end automation for [Sauce Demo](https://www.saucedemo.com/) using **Playwright**, **TypeScript**, and the **Page Object Model**. The suite covers happy-path flows (auth, inventory, checkout) plus negative / defect-characterization tests for `problem_user`.
 
 ## Prerequisites
 
@@ -24,7 +24,7 @@ npx playwright install chromium
 ## Running tests
 
 ```bash
-# Headless (default)
+# Headless (default) — full suite
 npm test
 
 # Headed browser
@@ -40,7 +40,16 @@ npm run test:debug
 npm run report
 ```
 
-Run a single file:
+Run by feature:
+
+```bash
+npm run test:auth
+npm run test:inventory
+npm run test:checkout
+npm run test:problem-user
+```
+
+Or target a file directly:
 
 ```bash
 npx playwright test tests/auth.spec.ts
@@ -64,15 +73,21 @@ sauce-demo-playwright/
 │   ├── CartPage.ts
 │   └── CheckoutPage.ts
 ├── fixtures/
-│   ├── auth.fixture.ts      # Page objects + authenticated / problem_user fixtures
+│   ├── auth.fixture.ts      # Page objects + authenticatedInventory / problemUserInventory
 │   └── test-data.ts         # Shared credentials, products, checkout data
 └── tests/
     ├── auth.setup.ts        # Writes storageState for standard_user
-    ├── auth.spec.ts
-    ├── inventory.spec.ts
-    ├── checkout.spec.ts
+    ├── auth.spec.ts         # Login success / failure cases
+    ├── inventory.spec.ts    # Catalog, sort, cart badge
+    ├── checkout.spec.ts     # Purchase flow + cart/checkout validation
     └── problem-user.spec.ts # Negative tests for known problem_user defects
 ```
+
+| Area | Responsibility |
+| --- | --- |
+| `pages/` | Page Object Model — locators and user actions |
+| `fixtures/` | Shared test data, page wiring, auth entry points |
+| `tests/` | Specs by feature (`auth`, `inventory`, `checkout`, `problem-user`) |
 
 ## What each test file validates
 
@@ -118,14 +133,12 @@ Negative / defect-characterization coverage for `problem_user` (asserts known br
 
 Hardcoded in `fixtures/test-data.ts` (public demo accounts):
 
-| Username | Password |
-| --- | --- |
-| `standard_user` | `secret_sauce` |
-| `locked_out_user` | `secret_sauce` |
-| `problem_user` | `secret_sauce` |
-| `performance_glitch_user` | `secret_sauce` |
-
-Inventory and checkout specs authenticate as `standard_user` via `storageState` produced by `tests/auth.setup.ts`.
+| Username | Password | Used by |
+| --- | --- | --- |
+| `standard_user` | `secret_sauce` | `auth.setup.ts`, `auth.spec.ts`, inventory & checkout via `storageState` |
+| `locked_out_user` | `secret_sauce` | `auth.spec.ts` |
+| `problem_user` | `secret_sauce` | `problem-user.spec.ts` (`problemUserInventory` fixture) |
+| `performance_glitch_user` | `secret_sauce` | Defined for future use |
 
 ## Design decisions
 
