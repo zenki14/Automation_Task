@@ -1,8 +1,3 @@
-/**
- * Shared Sauce Demo credentials and catalog constants.
- * Demo accounts are published on https://www.saucedemo.com/
- */
-
 export const PASSWORD = 'secret_sauce' as const;
 
 export const USERS = {
@@ -35,7 +30,6 @@ export const PRODUCTS = {
   redTShirt: 'Test.allTheThings() T-Shirt (Red)',
 } as const;
 
-/** Expected inventory catalog (A→Z by name). */
 export const EXPECTED_PRODUCTS = [
   PRODUCTS.backpack,
   PRODUCTS.bikeLight,
