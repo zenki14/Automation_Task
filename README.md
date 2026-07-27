@@ -89,45 +89,49 @@ sauce-demo-playwright/
 | `fixtures/` | Shared test data, page wiring, auth entry points |
 | `tests/` | Specs by feature (`auth`, `inventory`, `checkout`, `problem-user`) |
 
-## What each test file validates
+## Test cases
 
-### `auth.spec.ts`
+Each row maps a documented test case to the Playwright title in the suite so coverage is easy to audit.
 
-| # | Scenario |
-| --- | --- |
-| 1 | Successful login with `standard_user` → lands on the inventory page |
-| 2 | `locked_out_user` shows the locked-out error and does not reach inventory |
-| 3 | Invalid username/password shows the credentials mismatch error |
+### Authentication — `tests/auth.spec.ts`
 
-### `inventory.spec.ts`
+| ID | Test case | Playwright test | Steps | Expected result |
+| --- | --- | --- | --- | --- |
+| TC-AUTH-01 | Successful login | `successful login with standard_user lands on inventory` | Open login → enter `standard_user` / `secret_sauce` → Login | Inventory page loads (`/inventory.html`, “Products” visible) |
+| TC-AUTH-02 | Locked-out user | `locked out user shows the correct error message` | Login as `locked_out_user` | Error: user has been locked out; URL stays off inventory |
+| TC-AUTH-03 | Invalid credentials | `invalid username/password shows the correct error message` | Login with bad username/password | Error: credentials do not match any user |
 
-| # | Scenario |
-| --- | --- |
-| 1 | After login, the product list is visible and contains the expected catalog |
-| 2 | Sorting works for Name (A→Z), Name (Z→A), Price (low→high), Price (high→low) |
-| 3 | Adding a single product sets the cart badge to `1` |
-| 4 | Adding multiple products updates the cart badge correctly |
-| 5 | Removing a product from inventory decreases the badge |
+### Inventory — `tests/inventory.spec.ts`
 
-### `checkout.spec.ts`
+| ID | Test case | Playwright test | Steps | Expected result |
+| --- | --- | --- | --- | --- |
+| TC-INV-01 | Product catalog visible | `product list is visible and contains expected items` | Authenticate → open inventory | All 6 expected product names are listed |
+| TC-INV-02 | Product sorting | `sorting works for name and price options` | Sort A→Z, Z→A, price low→high, high→low | List order matches each sort option |
+| TC-INV-03 | Add one item | `adding a single product updates the cart badge to 1` | Add Sauce Labs Backpack | Cart badge shows `1` |
+| TC-INV-04 | Add multiple items | `adding multiple products updates the cart badge correctly` | Add Backpack, Bike Light, Onesie | Cart badge shows `3` |
+| TC-INV-05 | Remove from inventory | `removing a product from inventory decreases the badge` | Add 2 items → Remove one | Cart badge decreases to `1` |
 
-| # | Scenario |
-| --- | --- |
-| 1 | Happy-path purchase: login → add 2 products → cart → checkout → finish → confirmation + empty cart |
-| 2 | Checkout form validation: continue with empty required fields shows the expected error |
-| 3 | User can remove an item from the cart page before checking out |
+### Checkout — `tests/checkout.spec.ts`
 
-### `problem-user.spec.ts`
+| ID | Test case | Playwright test | Steps | Expected result |
+| --- | --- | --- | --- | --- |
+| TC-CHK-01 | Happy-path purchase | `full happy-path purchase flow for two products` | Add 2 products → Cart → Checkout → fill info → Continue → Finish | “Thank you for your order!”; cart empty after return home |
+| TC-CHK-02 | Required-field validation | `checkout form validation shows error when required fields are empty` | Add item → Checkout → Continue with empty fields | Error: First Name is required |
+| TC-CHK-03 | Remove from cart | `user can remove an item from the cart before checking out` | Add 2 products → Cart → Remove one | Cart shows 1 remaining item |
 
-Negative / defect-characterization coverage for `problem_user` (asserts known broken behaviors):
+### problem_user (negative) — `tests/problem-user.spec.ts`
 
-| # | Scenario |
-| --- | --- |
-| 1 | Every product image points at a shared 404 asset |
-| 2 | Sorting Name (Z→A) does not reorder the catalog |
-| 3 | Adding Fleece Jacket does not update the cart badge |
-| 4 | Remove fails after adding Backpack (badge stays at 1) |
-| 5 | Checkout cannot continue because last name never persists |
+These cases document known Sauce Demo defects for `problem_user` (asserting broken behavior).
+
+| ID | Test case | Playwright test | Steps | Expected result |
+| --- | --- | --- | --- | --- |
+| TC-PROB-01 | Broken product images | `product images are broken (404 assets) for every item` | Login as `problem_user` → view inventory | Every image `src` contains `404`; all share one broken asset |
+| TC-PROB-02 | Sort does not apply | `sorting by name Z to A does not reorder the product list` | Sort A→Z, then Z→A | Product order does not reverse |
+| TC-PROB-03 | Fleece add-to-cart fails | `Add to cart for Fleece Jacket does not update the cart badge` | Click Add to cart on Fleece Jacket | Button stays “Add to cart”; badge remains empty |
+| TC-PROB-04 | Remove fails | `Remove does not work after adding Backpack to the cart` | Add Backpack → click Remove | Badge stays at `1`; Remove still visible |
+| TC-PROB-05 | Last name not persisted | `checkout cannot continue because last name never persists` | Add Backpack → Checkout → fill all fields → Continue | Last name empty; error: Last Name is required |
+
+**Total automated cases:** 16 (`3` auth + `5` inventory + `3` checkout + `5` problem_user)
 
 ## Shared credentials
 
